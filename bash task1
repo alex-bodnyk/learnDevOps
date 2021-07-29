@@ -1,0 +1,10 @@
+#! /bin/bash -
+var="whoami"
+if [[ ! -e /home/Scripts/file.txt ]]; then
+    mkdir -p /home/Scripts
+    touch /Scripts/file.txt
+    echo "DevopsLab2021" >> /home/Scripts/file.txt
+    ${var} >> /home/Scripts/file.txt
+fi
+
+tar -czf /home/myscript.tar.gz --absolute-names /home/Scripts 
