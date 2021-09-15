@@ -1,0 +1,42 @@
+#!groovy
+// Build after commit
+properties([disableConcurrentBuilds()])
+
+pipeline {
+    agent { 
+        label 'master'
+        }
+    triggers { pollSCM('* * * * *') }   
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+        timestamps()
+    }
+    stages {
+        stage("docker login") {
+            steps {
+                echo " ============== docker login =================="
+                withCredentials([usernamePassword(credentialsId: 'docker_alex0109', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh """
+                    docker login -u $USERNAME -p $PASSWORD
+                    """
+                }
+            }
+        }
+        stage("Create docker image") {
+            steps {
+                echo " ================= start building image ============================== "
+                dir ('docker/file') {
+                        sh 'docker build -t alex/toolbox:latest . '
+                }
+           } 
+       }
+       stage("docker push") {
+            steps {
+                echo " ============== start pushing image =================="
+                sh '''
+                docker push alex/toolbox:latest
+                '''
+            }
+        }
+   }
+}
